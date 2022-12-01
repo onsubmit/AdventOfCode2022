@@ -18,7 +18,8 @@ namespace AdventOfCode2022.Days
         {
             using StreamReader sr = new("input\\Day01.txt");
 
-            int maxCalories = int.MinValue;
+            const int NumTopElvesToTrack = 3;
+            List<int> top3Calories = new(Enumerable.Range(1, NumTopElvesToTrack).Select(x => int.MinValue));
             int runningSum = 0;
 
             while (true)
@@ -27,7 +28,21 @@ namespace AdventOfCode2022.Days
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     // Next elf
-                    maxCalories = Math.Max(maxCalories, runningSum);
+                    for (int i = 0; i < NumTopElvesToTrack; i++)
+                    {
+                        if (runningSum > top3Calories[i])
+                        {
+                            top3Calories.Insert(i, runningSum);
+
+                            if (top3Calories.Count > NumTopElvesToTrack)
+                            {
+                                top3Calories.RemoveAt(top3Calories.Count - 1);
+                            }
+
+                            break;
+                        }
+                    }
+
                     runningSum = 0;
 
                     if (line == null)
@@ -46,7 +61,7 @@ namespace AdventOfCode2022.Days
                 runningSum += calories;
             }
 
-            return maxCalories.ToString();
+            return top3Calories.Sum().ToString();
         }
     }
 }
