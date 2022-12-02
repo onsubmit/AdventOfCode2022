@@ -12,22 +12,28 @@ namespace AdventOfCode2022.Days
     /// </summary>
     internal class Day02 : IDay
     {
-        private Dictionary<RockPaperScissors, int> scores = new()
+        private static readonly Dictionary<RockPaperScissors, int> Scores = new()
         {
             { RockPaperScissors.Rock, 1 },
             { RockPaperScissors.Paper, 2 },
             { RockPaperScissors.Scissors, 3 },
         };
 
-        private Dictionary<string, RockPaperScissors> guideMap = new()
+        private static readonly Dictionary<string, RockPaperScissors> GuideMap = new()
         {
             { "A", RockPaperScissors.Rock },
             { "B", RockPaperScissors.Paper },
             { "C", RockPaperScissors.Scissors },
-            { "X", RockPaperScissors.Rock },
-            { "Y", RockPaperScissors.Paper },
-            { "Z", RockPaperScissors.Scissors },
         };
+
+        private static readonly Dictionary<RockPaperScissors, RockPaperScissors> WinningPlay = new()
+        {
+            { RockPaperScissors.Rock, RockPaperScissors.Paper },
+            { RockPaperScissors.Paper, RockPaperScissors.Scissors },
+            { RockPaperScissors.Scissors, RockPaperScissors.Rock },
+        };
+
+        private static readonly Dictionary<RockPaperScissors, RockPaperScissors> LosingPlay = WinningPlay.ToDictionary((p) => p.Value, (p) => p.Key);
 
         /// <summary>
         /// Gets the solution for this day.
@@ -43,17 +49,20 @@ namespace AdventOfCode2022.Days
             while ((line = sr.ReadLine()) != null)
             {
                 string[] plays = line.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-                if (!this.guideMap.TryGetValue(plays[0], out RockPaperScissors elf))
+                if (!GuideMap.TryGetValue(plays[0], out RockPaperScissors elf))
                 {
                     throw new InvalidDataException();
                 }
 
-                if (!this.guideMap.TryGetValue(plays[1], out RockPaperScissors me))
+                RockPaperScissors me = plays[1] switch
                 {
-                    throw new InvalidDataException();
-                }
+                    "X" => LosingPlay[elf],
+                    "Y" => elf,
+                    "Z" => WinningPlay[elf],
+                    _ => throw new InvalidOperationException("Invalid strategy"),
+                };
 
-                score += this.scores[me] + GetOutcomeScore(elf, me);
+                score += Scores[me] + GetOutcomeScore(elf, me);
             }
 
             return score.ToString();
