@@ -76,9 +76,7 @@ namespace AdventOfCode2022.Days
                 return 3;
             }
 
-            if ((elf == RockPaperScissors.Rock && me == RockPaperScissors.Paper)
-                || (elf == RockPaperScissors.Paper && me == RockPaperScissors.Scissors)
-                || (elf == RockPaperScissors.Scissors && me == RockPaperScissors.Rock))
+            if (WinningPlay[elf] == me)
             {
                 // Win
                 return 6;
