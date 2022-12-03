@@ -19,20 +19,35 @@ namespace AdventOfCode2022.Days
             using StreamReader sr = new("input\\Day03.txt");
 
             int sum = 0;
+            const int GroupSize = 3;
 
             string? line;
             while ((line = sr.ReadLine()) != null)
             {
-                if (line.Length % 2 != 0 || line.Any(c => !char.IsLetter(c)))
+                if (line.Any(c => !char.IsLetter(c)))
                 {
                     throw new InvalidDataException();
                 }
 
-                int midpoint = line.Length / 2;
-                string rucksack1 = line[..midpoint];
-                string rucksack2 = line[midpoint..];
+                List<string> group = new(GroupSize) { line };
+                for (int i = 0; i < GroupSize - 1; i++)
+                {
+                    line = sr.ReadLine();
+                    if (line == null)
+                    {
+                        throw new InvalidDataException();
+                    }
 
-                char sharedItem = rucksack1.Intersect(rucksack2).Single();
+                    group.Add(line);
+                }
+
+                IEnumerable<char> common = group[0];
+                for (int i = 1; i < group.Count; i++)
+                {
+                    common = common.Intersect(group[i]);
+                }
+
+                char sharedItem = common.Single();
                 int priority = sharedItem switch
                 {
                     <= 'Z' => sharedItem - 'A' + 27,
