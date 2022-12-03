@@ -30,10 +30,10 @@ namespace AdventOfCode2022.Days
                 }
 
                 List<string> group = new(GroupSize) { line };
-                for (int i = 0; i < GroupSize - 1; i++)
+                for (int i = 1; i < GroupSize; i++)
                 {
                     line = sr.ReadLine();
-                    if (line == null)
+                    if (line == null || line.Any(c => !char.IsLetter(c)))
                     {
                         throw new InvalidDataException();
                     }
