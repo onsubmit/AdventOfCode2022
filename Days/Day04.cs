@@ -22,7 +22,7 @@ namespace AdventOfCode2022.Days
         {
             using StreamReader sr = new("input\\Day04.txt");
 
-            int uselessElves = 0;
+            int overlappingPairs = 0;
 
             string? line;
             while ((line = sr.ReadLine()) != null)
@@ -40,14 +40,14 @@ namespace AdventOfCode2022.Days
                     throw new InvalidDataException();
                 }
 
-                if ((elf1Start >= elf2Start && elf1End <= elf2End)
-                    || (elf2Start >= elf1Start && elf2End <= elf1End))
+                if ((elf1Start >= elf2Start && elf1Start <= elf2End)
+                    || (elf2Start >= elf1Start && elf2Start <= elf1End))
                 {
-                    uselessElves++;
+                    overlappingPairs++;
                 }
             }
 
-            return uselessElves.ToString();
+            return overlappingPairs.ToString();
         }
     }
 }

@@ -1,4 +1,4 @@
 ﻿Day 1: 205805 in 11ms
 Day 2: 10560 in 8ms
 Day 3: 2415 in 3ms
-Day 4: 595 in 9ms
+Day 4: 952 in 9ms
