@@ -5,15 +5,12 @@
 //-----------------------------------------------------------------------
 namespace AdventOfCode2022.Days
 {
-    using System.Text.RegularExpressions;
-    using AdventOfCode2022.Extensions;
-
     /// <summary>
     /// Calculates the solution for the particular day.
     /// </summary>
     internal class Day06 : IDay
     {
-        private const int PacketStartIndicatorLength = 4;
+        private const int MessageStartIndicatorLength = 14;
 
         /// <summary>
         /// Gets the solution for this day.
@@ -29,24 +26,24 @@ namespace AdventOfCode2022.Days
                 throw new InvalidDataException();
             }
 
-            int packetStartIndex = -1;
-            for (int i = 0; i < line.Length - PacketStartIndicatorLength; i++)
+            int messageStartIndex = -1;
+            for (int i = 0; i < line.Length - MessageStartIndicatorLength; i++)
             {
-                string marker = line.Substring(i, PacketStartIndicatorLength);
-                bool isPacketStart = marker.Distinct().Count() == PacketStartIndicatorLength;
-                if (isPacketStart)
+                string marker = line.Substring(i, MessageStartIndicatorLength);
+                bool isMessageStart = marker.Distinct().Count() == MessageStartIndicatorLength;
+                if (isMessageStart)
                 {
-                    packetStartIndex = i + PacketStartIndicatorLength;
+                    messageStartIndex = i + MessageStartIndicatorLength;
                     break;
                 }
             }
 
-            if (packetStartIndex < 0)
+            if (messageStartIndex < 0)
             {
                 throw new InvalidOperationException();
             }
 
-            return packetStartIndex.ToString();
+            return messageStartIndex.ToString();
         }
     }
 }
