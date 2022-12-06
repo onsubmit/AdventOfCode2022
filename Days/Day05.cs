@@ -144,10 +144,16 @@ namespace AdventOfCode2022.Days
             }
 
             // Move 'amount' from start column to end column.
+            List<char> cratesToMove = new(amount);
             while (amount-- > 0)
             {
                 char value = this.columns[columnStart - 1].Pop();
-                this.columns[columnEnd - 1].Push(value);
+                cratesToMove.Add(value);
+            }
+
+            for (int i = cratesToMove.Count - 1; i >= 0; i--)
+            {
+                this.columns[columnEnd - 1].Push(cratesToMove[i]);
             }
         }
     }
