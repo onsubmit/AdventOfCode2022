@@ -13,7 +13,8 @@ namespace AdventOfCode2022.Days
     /// </summary>
     internal class Day07 : IDay
     {
-        private const int MaxTotalSize = 100000;
+        private const int TotalDiskSpace = 70000000;
+        private const int UnusedSpaceNecessary = 30000000;
 
         private static readonly Regex ListFileRegex = new(@"^(?<SIZE>\d+) (?<NAME>\S+)$", RegexOptions.Compiled);
         private static readonly Regex ListDirectoryRegex = new(@"^dir (?<NAME>\w+)$", RegexOptions.Compiled);
@@ -88,17 +89,20 @@ namespace AdventOfCode2022.Days
                 ExecuteActions(this.changeDirectoryMap, line);
             }
 
-            int runningSum = 0;
-            GetTotalSizeOfDirectories(this.root, ref runningSum);
-            return runningSum.ToString();
+            int spaceRemaining = TotalDiskSpace - this.root.TotalSize;
+            int minSizeToDelete = UnusedSpaceNecessary - spaceRemaining;
+
+            int sizeToDelete = int.MaxValue;
+            GetSizeOfDirectoryToDelete(this.root, minSizeToDelete, ref sizeToDelete);
+
+            return sizeToDelete.ToString();
         }
 
-        private static void GetTotalSizeOfDirectories(ElfDirectory current, ref int runningSum)
+        private static void GetSizeOfDirectoryToDelete(ElfDirectory current, int minSizeToDelete, ref int currentMin)
         {
-            int totalSize = current.TotalSize;
-            if (totalSize < MaxTotalSize)
+            if (current.TotalSize >= minSizeToDelete)
             {
-                runningSum += totalSize;
+                currentMin = Math.Min(currentMin, current.TotalSize);
             }
 
             if (!current.HasSubDirectories)
@@ -108,7 +112,7 @@ namespace AdventOfCode2022.Days
 
             foreach (ElfDirectory subDirectory in current.SubDirectores)
             {
-                GetTotalSizeOfDirectories(subDirectory, ref runningSum);
+                GetSizeOfDirectoryToDelete(subDirectory, minSizeToDelete, ref currentMin);
             }
         }
 
