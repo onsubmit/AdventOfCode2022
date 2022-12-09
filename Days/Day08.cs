@@ -3,7 +3,6 @@
 //     Copyright (c) Andy Young. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-
 namespace AdventOfCode2022.Days
 {
     using AdventOfCode2022.Models;
