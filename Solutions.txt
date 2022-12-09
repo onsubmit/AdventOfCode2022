@@ -5,4 +5,4 @@ Day 4: 952 in 9ms
 Day 5: TCGLQSLPW in 8ms
 Day 6: 3559 in 3ms
 Day 7: 10096985 in 7ms
-Day 8: 1845 in 38ms
+Day 8: 230112 in 3ms

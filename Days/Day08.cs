@@ -6,7 +6,6 @@
 
 namespace AdventOfCode2022.Days
 {
-    using System.Linq;
     using AdventOfCode2022.Models;
 
     /// <summary>
@@ -21,7 +20,7 @@ namespace AdventOfCode2022.Days
         public string GetSolution()
         {
             ElfTreePatch trees = new(File.ReadAllLines("input\\Day08.txt"));
-            return trees.NumTreesVisible.ToString();
+            return trees.HighestScenicScore.ToString();
         }
     }
 }

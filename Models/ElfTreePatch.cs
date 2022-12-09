@@ -32,7 +32,7 @@ namespace AdventOfCode2022.Models
         public int Columns => this.trees[0]?.Length ?? 0;
 
         /// <summary>
-        /// Gets a value indicating how many trees are visible.
+        /// Gets how many trees are visible.
         /// </summary>
         public int NumTreesVisible
         {
@@ -54,17 +54,38 @@ namespace AdventOfCode2022.Models
             }
         }
 
+        /// <summary>
+        /// Gets the highest scenic score.
+        /// </summary>
+        public int HighestScenicScore
+        {
+            get
+            {
+                int highestScenicScore = int.MinValue;
+                for (int i = 0; i < this.Rows; i++)
+                {
+                    for (int j = 0; j < this.Columns; j++)
+                    {
+                        highestScenicScore = Math.Max(highestScenicScore, this.GetScenicScore(i, j));
+                    }
+                }
+
+                return highestScenicScore;
+            }
+        }
+
         private bool IsTreeVisible(int row, int column)
         {
-            int height = this.trees[row][column];
-
             if (row == 0
                 || column == 0
                 || row == this.Rows - 1
                 || column == this.Columns - 1)
             {
+                // Edge
                 return true;
             }
+
+            int height = this.trees[row][column];
 
             List<int> heightsFromLeft = new();
             List<int> heightsFromRight = new();
@@ -107,6 +128,62 @@ namespace AdventOfCode2022.Models
             }
 
             return false;
+        }
+
+        private int GetScenicScore(int row, int column)
+        {
+            if (row == 0
+                || column == 0
+                || row == this.Rows - 1
+                || column == this.Columns - 1)
+            {
+                // Edge
+                return 0;
+            }
+
+            int height = this.trees[row][column];
+
+            int lookUpCount = 0;
+            int lookDownCount = 0;
+            int lookLeftCount = 0;
+            int lookRightCount = 0;
+            for (int r = row - 1; r >= 0; r--)
+            {
+                lookUpCount++;
+                if (this.trees[r][column] >= height)
+                {
+                    break;
+                }
+            }
+
+            for (int r = row + 1; r < this.Rows; r++)
+            {
+                lookDownCount++;
+                if (this.trees[r][column] >= height)
+                {
+                    break;
+                }
+            }
+
+            for (int c = column - 1; c >= 0; c--)
+            {
+                lookLeftCount++;
+                if (this.trees[row][c] >= height)
+                {
+                    break;
+                }
+            }
+
+            for (int c = column + 1; c < this.Columns; c++)
+            {
+                lookRightCount++;
+                if (this.trees[row][c] >= height)
+                {
+                    break;
+                }
+            }
+
+            return lookUpCount * lookDownCount * lookLeftCount * lookRightCount;
         }
     }
 }
