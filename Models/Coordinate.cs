@@ -8,10 +8,10 @@ namespace AdventOfCode2022.Models
     /// <summary>
     /// Represents an x/y coordinate.
     /// </summary>
-    internal struct Coordinate
+    internal class Coordinate
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Coordinate"/> struct.
+        /// Initializes a new instance of the <see cref="Coordinate"/> class.
         /// </summary>
         /// <param name="x">x value.</param>
         /// <param name="y">y value.</param>
@@ -22,7 +22,7 @@ namespace AdventOfCode2022.Models
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Coordinate"/> struct.
+        /// Initializes a new instance of the <see cref="Coordinate"/> class.
         /// </summary>
         /// <param name="c">Coordinate to clone.</param>
         public Coordinate(Coordinate c)

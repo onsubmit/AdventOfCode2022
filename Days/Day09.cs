@@ -35,9 +35,11 @@ namespace AdventOfCode2022.Days
         {
             using StreamReader sr = new("input\\Day09.txt");
 
-            Coordinate head = new(0, 0);
-            Coordinate tail = new(0, 0);
-            HashSet<Coordinate> tailPath = new() { tail };
+            const int NumKnots = 10;
+
+            List<Coordinate> rope = Enumerable.Range(0, NumKnots).Select(x => new Coordinate(0, 0)).ToList();
+            Coordinate head = rope.First();
+            HashSet<Coordinate> tailPath = new() { rope.Last() };
 
             string? line;
             while ((line = sr.ReadLine()) != null)
@@ -65,38 +67,42 @@ namespace AdventOfCode2022.Days
                         head.Y += VerticalMovements[direction];
                     }
 
-                    if (head == tail || tail.IsAdjacentTo(head))
+                    for (int knotIndex = 0; knotIndex < rope.Count - 1; knotIndex++)
                     {
-                        // Tail is close enough.
-                        continue;
+                        Coordinate knot1 = rope[knotIndex];
+                        Coordinate knot2 = rope[knotIndex + 1];
+                        if (knot1 == knot2 || knot2.IsAdjacentTo(knot1))
+                        {
+                            // Knot is close enough.
+                            break;
+                        }
+
+                        int distanceX = knot1.X - knot2.X;
+                        int distanceY = knot1.Y - knot2.Y;
+
+                        int adjustX = distanceX > 0 ? 1 : -1;
+                        int adjustY = distanceY > 0 ? 1 : -1;
+
+                        if (distanceX == 0)
+                        {
+                            // Knot is in same column.
+                            knot2.Y += distanceY - adjustY;
+                            continue;
+                        }
+
+                        if (distanceY == 0)
+                        {
+                            // Knot is in same row.
+                            knot2.X += distanceX - adjustX;
+                            continue;
+                        }
+
+                        // Knots are not in the same row or column.
+                        knot2.X += adjustX;
+                        knot2.Y += adjustY;
                     }
 
-                    int distanceX = head.X - tail.X;
-                    int distanceY = head.Y - tail.Y;
-
-                    int adjustX = distanceX > 0 ? 1 : -1;
-                    int adjustY = distanceY > 0 ? 1 : -1;
-
-                    if (distanceX == 0)
-                    {
-                        // Tail is in same column.
-                        tail.Y += distanceY - adjustY;
-                        tailPath.Add(new Coordinate(tail));
-                        continue;
-                    }
-
-                    if (distanceY == 0)
-                    {
-                        // Tail is in same row.
-                        tail.X += distanceX - adjustX;
-                        tailPath.Add(new Coordinate(tail));
-                        continue;
-                    }
-
-                    // Head and tail are not in the same row or column.
-                    tail.X += adjustX;
-                    tail.Y += adjustY;
-                    tailPath.Add(new Coordinate(tail));
+                    tailPath.Add(rope.Last());
                 }
             }
 
