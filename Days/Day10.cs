@@ -10,6 +10,10 @@ namespace AdventOfCode2022.Days
     /// </summary>
     internal class Day10 : IDay
     {
+        private const int ScreenRows = 6;
+        private const int ScreenColumns = 40;
+        private readonly char[][] screen = Enumerable.Range(0, ScreenRows).Select(i => Enumerable.Range(0, ScreenColumns).Select(i => '.').ToArray()).ToArray();
+
         /// <summary>
         /// Gets the solution for this day.
         /// </summary>
@@ -19,25 +23,30 @@ namespace AdventOfCode2022.Days
             using StreamReader sr = new("input\\Day10.txt");
 
             int x = 1;
-            int cycle = 1;
-            int sum = 0;
+            int row = 0;
+            int column = 0;
 
-            void IncrementCycle()
+            void Draw()
             {
-                cycle++;
-                if ((cycle + 20) % 40 == 0)
+                if (Math.Abs(x - column) <= 1)
                 {
-                    int signalStrength = cycle * x;
-                    sum += signalStrength;
+                    this.screen[row][column] = '#';
+                }
+
+                column++;
+                if (column % ScreenColumns == 0)
+                {
+                    column = 0;
+                    row++;
                 }
             }
 
             string? line;
             while ((line = sr.ReadLine()) != null)
             {
+                Draw();
                 if (line == "noop")
                 {
-                    IncrementCycle();
                     continue;
                 }
 
@@ -48,16 +57,16 @@ namespace AdventOfCode2022.Days
                         throw new InvalidDataException();
                     }
 
-                    IncrementCycle();
+                    Draw();
                     x += value;
-                    IncrementCycle();
                     continue;
                 }
 
                 throw new InvalidDataException();
             }
 
-            return sum.ToString();
+            string screenContents = string.Join(string.Empty, this.screen.Select(l => $"{string.Join(string.Empty, l)}{Environment.NewLine}"));
+            return $"{Environment.NewLine}{screenContents}";
         }
     }
 }
