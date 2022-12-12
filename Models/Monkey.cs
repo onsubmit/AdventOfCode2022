@@ -13,17 +13,17 @@ namespace AdventOfCode2022.Models
         /// <summary>
         /// Gets or sets the queue of items inspected by the monkey.
         /// </summary>
-        public Queue<int> Items { get; set; } = new();
+        public Queue<long> Items { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the divisor.
+        /// </summary>
+        public long Divisor { get; set; }
 
         /// <summary>
         /// Gets or sets a function that describes how your worry level changes as that monkey inspects an item.
         /// </summary>
-        public Func<int, int> Operation { get; set; } = (worryLevel) => 0;
-
-        /// <summary>
-        /// Gets or sets a function that describes how the monkey uses your worry level to decide where to throw an item next.
-        /// </summary>
-        public Func<int, bool> Test { get; set; } = (worryLevel) => false;
+        public Func<long, long> Operation { get; set; } = (worryLevel) => 0;
 
         /// <summary>
         /// Gets or sets the index of the destination monkey when <see cref="Test"/> is <c>true</c>.
@@ -34,5 +34,12 @@ namespace AdventOfCode2022.Models
         /// Gets or sets the index of the destination monkey when <see cref="Test"/> is <c>false</c>.
         /// </summary>
         public int TestFalseMonkey { get; set; }
+
+        /// <summary>
+        /// Describes how the monkey uses your worry level to decide where to throw an item next.
+        /// </summary>
+        /// <param name="worryLevel">The current worry level.</param>
+        /// <returns>The monkey's decision.</returns>
+        public bool Test(long worryLevel) => worryLevel % this.Divisor == 0;
     }
 }

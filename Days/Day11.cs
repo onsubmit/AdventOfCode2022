@@ -7,13 +7,14 @@ namespace AdventOfCode2022.Days
 {
     using System.Text.RegularExpressions;
     using AdventOfCode2022.Models;
+    using AdventOfCode2022.Utilities;
 
     /// <summary>
     /// Calculates the solution for the particular day.
     /// </summary>
     internal class Day11 : IDay
     {
-        private const int MaxMonkeyBusinessRounds = 20;
+        private const int MaxMonkeyBusinessRounds = 10000;
 
         private static readonly Regex MonkeyRegex = new(@"^Monkey \d+:$", RegexOptions.Compiled);
         private static readonly Regex StartItemsRegex = new(@"^  Starting items: (?<ITEMS>(\d+(, )?)+)$", RegexOptions.Compiled);
@@ -120,7 +121,7 @@ namespace AdventOfCode2022.Days
 
         private void SetStartingItems(Match match, Monkey monkey)
         {
-            monkey.Items = new(match.Groups["ITEMS"].Value.Split(',').Select(n => int.Parse(n.Trim())));
+            monkey.Items = new(match.Groups["ITEMS"].Value.Split(',').Select(n => long.Parse(n.Trim())));
         }
 
         private void SetOperation(Match match, Monkey monkey)
@@ -130,7 +131,7 @@ namespace AdventOfCode2022.Days
 
             monkey.Operation = (old) =>
             {
-                int value = valueString == "old" ? old : int.Parse(valueString);
+                long value = valueString == "old" ? old : long.Parse(valueString);
                 return oper == "+" ? old + value : old * value;
             };
         }
@@ -138,7 +139,7 @@ namespace AdventOfCode2022.Days
         private void SetTest(Match match, Monkey monkey)
         {
             int value = int.Parse(match.Groups["VALUE"].Value);
-            monkey.Test = (worryLevel) => worryLevel % value == 0;
+            monkey.Divisor = value;
         }
 
         private void SetTestResult(Match match, Monkey monkey)
@@ -156,9 +157,12 @@ namespace AdventOfCode2022.Days
             }
         }
 
-        private int GetMonkeyBusinessLevel()
+        private long GetMonkeyBusinessLevel()
         {
-            Dictionary<int, int> activityLevel = Enumerable.Range(0, this.monkeys.Count).ToDictionary(x => x, x => 0);
+            IEnumerable<long> divisors = this.monkeys.Select(m => m.Divisor);
+            long leastCommonMultiple = Calculator.GetLeastCommonMultiple(divisors);
+
+            Dictionary<int, long> activityLevel = Enumerable.Range(0, this.monkeys.Count).ToDictionary(x => x, x => 0L);
 
             for (int i = 0; i < MaxMonkeyBusinessRounds; i++)
             {
@@ -167,16 +171,16 @@ namespace AdventOfCode2022.Days
                     Monkey monkey = this.monkeys[m];
                     activityLevel[m] += monkey.Items.Count;
 
-                    while (monkey.Items.TryDequeue(out int worryLevel))
+                    while (monkey.Items.TryDequeue(out long worryLevel))
                     {
-                        int newWorryLevel = monkey.Operation(worryLevel) / 3;
+                        long newWorryLevel = monkey.Operation(worryLevel) % leastCommonMultiple;
                         int newMonkey = monkey.Test(newWorryLevel) ? monkey.TestTrueMonkey : monkey.TestFalseMonkey;
                         this.monkeys[newMonkey].Items.Enqueue(newWorryLevel);
                     }
                 }
             }
 
-            IEnumerable<int> top2 = activityLevel.Values.OrderByDescending(x => x).Take(2);
+            IEnumerable<long> top2 = activityLevel.Values.OrderByDescending(x => x).Take(2);
             return top2.First() * top2.Last();
         }
     }
