@@ -58,6 +58,38 @@ namespace AdventOfCode2022.Models
         public static bool operator !=(Coordinate a, Coordinate b) => !a.Equals(b);
 
         /// <summary>
+        /// Adds two coordinates together.
+        /// </summary>
+        /// <param name="a">First coordinate.</param>
+        /// <param name="b">Second coordinate.</param>
+        /// <returns>The sum of the two coordinates.</returns>
+        public static Coordinate operator +(Coordinate a, Coordinate b)
+        {
+            return new(a.X + b.X, a.Y + b.Y);
+        }
+
+        /// <summary>
+        /// Determines if the coordinate is within the given range.
+        /// </summary>
+        /// <param name="min">The minimum value.</param>
+        /// <param name="max">The maximum value.</param>
+        /// <returns><c>true</c> if the coordinate is within the given range, <c>false</c> otherwise.</returns>
+        public bool IsInRange(Coordinate min, Coordinate max)
+        {
+            if (this.X < min.X || this.X > max.X)
+            {
+                return false;
+            }
+
+            if (this.Y < min.Y || this.Y > max.Y)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Determines if this coordinate is adjacent to the provided coordinate.
         /// </summary>
         /// <param name="c">The coordinate to check.</param>
