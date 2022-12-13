@@ -46,7 +46,7 @@ namespace AdventOfCode2022.Models
         /// <summary>
         /// Gets the starting coordinate.
         /// </summary>
-        public Coordinate Start { get; private set; } = new(0, 0);
+        public Coordinate Start { get; set; } = new(0, 0);
 
         /// <summary>
         /// Gets the ending coordinate.

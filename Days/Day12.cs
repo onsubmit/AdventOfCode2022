@@ -10,6 +10,7 @@ namespace AdventOfCode2022.Days
     /// <summary>
     /// Calculates the solution for the particular day.
     /// </summary>
+    [Skip("Takes about 8 seconds")]
     internal class Day12 : IDay
     {
         private static readonly Dictionary<Coordinate, int> TotalDistances = new();
@@ -24,20 +25,45 @@ namespace AdventOfCode2022.Days
         {
             HeightMap heightMap = new(File.ReadAllLines("input\\Day12.txt"));
 
-            Setup(heightMap);
-            ProcessQueue(heightMap);
+            int minLength = int.MaxValue;
 
-            List<Coordinate> path = new();
-            for (Coordinate target = heightMap.End; Previous.ContainsKey(target); target = Previous[target])
+            for (int r = 0; r < heightMap.Rows; r++)
             {
-                path.Add(target);
+                for (int c = 0; c < heightMap.Columns; c++)
+                {
+                    Coordinate coordinate = new(r, c);
+                    if (heightMap[coordinate] != 0)
+                    {
+                        continue;
+                    }
+
+                    heightMap.Start = coordinate;
+                    Setup(heightMap);
+                    ProcessQueue(heightMap);
+
+                    List<Coordinate> path = new();
+                    for (Coordinate target = heightMap.End; Previous.ContainsKey(target); target = Previous[target])
+                    {
+                        path.Add(target);
+                        if (path.Count > minLength)
+                        {
+                            break;
+                        }
+                    }
+
+                    minLength = Math.Min(minLength, path.Count);
+                }
             }
 
-            return path.Count.ToString();
+            return minLength.ToString();
         }
 
         private static void Setup(HeightMap heightMap)
         {
+            TotalDistances.Clear();
+            Previous.Clear();
+            Queue.Clear();
+
             for (int r = 0; r < heightMap.Rows; r++)
             {
                 for (int c = 0; c < heightMap.Columns; c++)
