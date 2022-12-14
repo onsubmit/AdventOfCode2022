@@ -21,42 +21,39 @@ namespace AdventOfCode2022.Days
             using StreamReader sr = new("input\\Day13.txt");
             string? line;
 
-            int index = 0;
-            int sum = 0;
-            PacketData? a;
-            PacketData? b;
-            while (true)
-            {
-                line = sr.ReadLine();
-                if (line == null)
-                {
-                    break;
-                }
+            string[] initial = new[] { "[[2]]", "[[6]]" };
+            List<PacketData> packets = initial.Select(p => new PacketData(p)).ToList();
 
+            while ((line = sr.ReadLine()) != null)
+            {
                 if (string.IsNullOrWhiteSpace(line))
                 {
                     continue;
                 }
 
-                a = new(line);
+                packets.Add(new(line));
+            }
 
-                line = sr.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
+            packets.Sort(new PacketDataComparer());
+
+            int found = 0;
+            int product = 1;
+            for (int i = 0; i < packets.Count; i++)
+            {
+                PacketData packet = packets[i];
+                if (initial.Contains(packet.Raw))
                 {
-                    throw new InvalidDataException();
+                    product *= i + 1;
+                    found++;
                 }
 
-                b = new(line);
-
-                index++;
-                int compare = PacketDataComparer.Compare(a, b);
-                if (compare < 0)
+                if (found == 2)
                 {
-                    sum += index;
+                    break;
                 }
             }
 
-            return sum.ToString();
+            return product.ToString();
         }
     }
 }

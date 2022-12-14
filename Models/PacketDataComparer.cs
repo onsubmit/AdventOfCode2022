@@ -5,10 +5,12 @@
 //-----------------------------------------------------------------------
 namespace AdventOfCode2022.Models
 {
+    using System.Collections;
+
     /// <summary>
     /// Compares two <see cref="PacketData"/> instances.
     /// </summary>
-    internal static class PacketDataComparer
+    internal class PacketDataComparer : IComparer<PacketData>
     {
         /// <summary>
         /// Compares two <see cref="PacketData"/> instances.
@@ -16,7 +18,18 @@ namespace AdventOfCode2022.Models
         /// <param name="a">1st instance.</param>
         /// <param name="b">2nd instance.</param>
         /// <returns>-1 if the 1st precedes the 2nd. 0 if they occur in the same position in the sort order. 1 if the 1st follows the 2nd.</returns>
-        public static int Compare(PacketData a, PacketData b)
+        public int Compare(PacketData? a, PacketData? b)
+        {
+            return CompareTo(a, b);
+        }
+
+        /// <summary>
+        /// Compares two <see cref="PacketData"/> instances.
+        /// </summary>
+        /// <param name="a">1st instance.</param>
+        /// <param name="b">2nd instance.</param>
+        /// <returns>-1 if the 1st precedes the 2nd. 0 if they occur in the same position in the sort order. 1 if the 1st follows the 2nd.</returns>
+        private static int CompareTo(PacketData? a, PacketData? b)
         {
             if (a == null || b == null)
             {
@@ -58,7 +71,7 @@ namespace AdventOfCode2022.Models
                     return 1;
                 }
 
-                int compare = Compare(a[i], b[i]);
+                int compare = CompareTo(a[i], b[i]);
                 if (compare != 0)
                 {
                     return compare;
