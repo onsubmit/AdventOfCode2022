@@ -33,15 +33,10 @@ namespace AdventOfCode2022.Models
                 return;
             }
 
-            if (!inner.Contains(','))
+            if (!inner.Contains('['))
             {
-                if (PacketDataNumber.TryParse(inner, out PacketDataNumber? regularNumber))
-                {
-                    this.Values.Add(regularNumber);
-                    return;
-                }
-
-                this.Values.Add(new(inner));
+                // All integers, no lists.
+                this.Values.AddRange(inner.Split(',').Select(n => new PacketDataNumber(n)));
                 return;
             }
 
@@ -60,16 +55,24 @@ namespace AdventOfCode2022.Models
                     numberStart = stack.Pop();
                 }
 
-                if (stack.Count == 0)
+                if (!stack.Any())
                 {
-                    string value = inner[numberStart..(i + 1)];
-                    if (value == "," || string.IsNullOrWhiteSpace(value))
+                    string? value = null;
+                    if (i == inner.Length - 1)
+                    {
+                        value = inner[numberStart..];
+                    }
+                    else if (c == ',')
+                    {
+                        value = inner[numberStart..i];
+                    }
+                    else
                     {
                         continue;
                     }
 
                     this.Values.Add(PacketDataParser.Parse(value));
-                    numberStart = i + 2;
+                    numberStart = i + 1;
                 }
             }
         }
