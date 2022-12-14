@@ -5,6 +5,8 @@
 //-----------------------------------------------------------------------
 namespace AdventOfCode2022.Models
 {
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     /// Represents an x/y coordinate.
     /// </summary>
@@ -66,6 +68,36 @@ namespace AdventOfCode2022.Models
         public static Coordinate operator +(Coordinate a, Coordinate b)
         {
             return new(a.X + b.X, a.Y + b.Y);
+        }
+
+        /// <summary>
+        ///  Converts the string representation of a coordinate.
+        /// </summary>
+        /// <param name="input">The raw input.</param>
+        /// <param name="coordinate">When this method returns, contains the converted coordinate; otherwise, <c>null</c>.</param>
+        /// <returns><c>true</c> if the conversion was successful, <c>false</c> otherwise.</returns>
+        public static bool TryParse(string input, [NotNullWhen(true)] out Coordinate? coordinate)
+        {
+            coordinate = null;
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return false;
+            }
+
+            string[] split = input.Split(',');
+            if (split.Length != 2)
+            {
+                return false;
+            }
+
+            if (!int.TryParse(split[0], out int x) || !int.TryParse(split[1], out int y))
+            {
+                return false;
+            }
+
+            coordinate = new(x, y);
+            return true;
         }
 
         /// <summary>
