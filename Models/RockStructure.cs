@@ -59,6 +59,12 @@ namespace AdventOfCode2022.Models
                 paths.Add(path);
             }
 
+            int hackySolutionToExtendWidthAmount = 200;
+            min.X -= hackySolutionToExtendWidthAmount;
+            max.X += hackySolutionToExtendWidthAmount;
+            max.Y += 2;
+            paths.Add(new() { new(min.X, max.Y), new(max.X, max.Y) });
+
             this.numRows = max.Y - min.Y + 1;
             this.numCols = max.X - min.X + 1;
             this.maxX = max.X;
@@ -103,16 +109,15 @@ namespace AdventOfCode2022.Models
         {
             while (true)
             {
-                (bool canFallFurther, bool inBounds, Coordinate nextCoordinate) = this.CanFallFurther(c);
+                if (this[c] == Material.Sand)
+                {
+                    return false;
+                }
+
+                (bool canFallFurther, Coordinate nextCoordinate) = this.CanFallFurther(c);
 
                 if (!canFallFurther)
                 {
-                    if (!inBounds)
-                    {
-                        // Sand fell out of bounds into the abyss.
-                        return false;
-                    }
-
                     // Sand came to a resting point.
                     this[c] = Material.Sand;
                     return true;
@@ -177,7 +182,7 @@ namespace AdventOfCode2022.Models
             }
         }
 
-        private (bool CanFallFurther, bool InBounds, Coordinate Next) CanFallFurther(Coordinate coordinate)
+        private (bool CanFallFurther, Coordinate Next) CanFallFurther(Coordinate coordinate)
         {
             Coordinate down = coordinate + new Coordinate(0, 1);
             Coordinate downLeft = coordinate + new Coordinate(-1, 1);
@@ -187,17 +192,17 @@ namespace AdventOfCode2022.Models
             {
                 if (!this.IsWithinBounds(next))
                 {
-                    return (CanFallFurther: false, InBounds: false, Next: next);
+                    throw new InvalidOperationException();
                 }
 
                 if (this[next] == Material.Empty)
                 {
-                    return (CanFallFurther: true, InBounds: true, Next: next);
+                    return (CanFallFurther: true, Next: next);
                 }
             }
 
             // Cannot fall further.
-            return (CanFallFurther: false, InBounds: true, Next: coordinate);
+            return (CanFallFurther: false, Next: coordinate);
         }
 
         private bool IsWithinBounds(Coordinate c)
