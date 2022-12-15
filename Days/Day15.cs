@@ -21,7 +21,7 @@ namespace AdventOfCode2022.Days
             string[] lines = File.ReadAllLines("input\\Day15.txt");
             TunnelNetwork network = new(lines);
 
-            return 0.ToString();
+            return network.GetNumCoordinatesThatCannotBeABeacon().ToString();
         }
     }
 }

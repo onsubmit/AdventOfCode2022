@@ -101,6 +101,16 @@ namespace AdventOfCode2022.Models
         }
 
         /// <summary>
+        /// Gets the Manhattan distance between this coordinate and the given coordinate.
+        /// </summary>
+        /// <param name="c">The coordinate.</param>
+        /// <returns>The Manhattan distance between this coordinate and the given coordinate.</returns>
+        public int GetManhattanDistanceTo(Coordinate c)
+        {
+            return Math.Abs(this.X - c.X) + Math.Abs(this.Y - c.Y);
+        }
+
+        /// <summary>
         /// Determines if the coordinate is within the given range.
         /// </summary>
         /// <param name="min">The minimum value.</param>

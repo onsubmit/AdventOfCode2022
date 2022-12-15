@@ -11,11 +11,6 @@ namespace AdventOfCode2022.Models
     internal enum TunnelNetworkItem
     {
         /// <summary>
-        /// Unknown what occupies the space.
-        /// </summary>
-        Unknown,
-
-        /// <summary>
         /// Unknown what occupies the space, but it's not a beacon.
         /// </summary>
         UnknownButNotABeacon,
