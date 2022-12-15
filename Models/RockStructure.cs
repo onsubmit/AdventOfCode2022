@@ -5,12 +5,26 @@
 //-----------------------------------------------------------------------
 namespace AdventOfCode2022.Models
 {
+    using System.Diagnostics.CodeAnalysis;
+    using System.Text;
+
     /// <summary>
     /// Represents a rock structure.
     /// </summary>
     internal class RockStructure
     {
+        private static readonly Dictionary<Material, string> MaterialStrings = new()
+        {
+            { Material.Empty, " " },
+            { Material.Rock, "#" },
+            { Material.Sand, "o" },
+        };
+
         private readonly Material[][] materials;
+
+        private readonly int numRows;
+        private readonly int numCols;
+        private readonly int maxX;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RockStructure"/> class.
@@ -21,39 +35,111 @@ namespace AdventOfCode2022.Models
             Coordinate min = new(int.MaxValue, 0);
             Coordinate max = new(int.MinValue, int.MinValue);
 
-            List<List<Coordinate>> rockPaths = new();
+            List<List<Coordinate>> paths = new();
             for (int i = 0; i < lines.Length; i++)
             {
+                List<Coordinate> path = new();
+
                 string[] split = lines[i].Split("->");
-                List<Coordinate> path = split.Select(c =>
+                foreach (string c in split)
                 {
                     if (!Coordinate.TryParse(c.Trim(), out Coordinate? coordinate))
                     {
                         throw new InvalidDataException();
                     }
 
-                    return coordinate;
-                }).ToList();
+                    min.X = Math.Min(min.X, coordinate.X);
+                    min.Y = Math.Min(min.Y, coordinate.Y);
+                    max.X = Math.Max(max.X, coordinate.X);
+                    max.Y = Math.Max(max.Y, coordinate.Y);
 
-                rockPaths.Add(path);
+                    path.Add(coordinate);
+                }
 
-                int minX = path.MinBy(c => c.X)?.X ?? int.MaxValue;
-                int minY = path.MinBy(c => c.Y)?.Y ?? int.MaxValue;
-                int maxX = path.MaxBy(c => c.X)?.X ?? int.MinValue;
-                int maxY = path.MaxBy(c => c.Y)?.Y ?? int.MinValue;
-
-                min.X = Math.Min(min.X, minX);
-                min.Y = Math.Min(min.Y, minY);
-                max.X = Math.Max(max.X, maxX);
-                max.Y = Math.Max(max.Y, maxY);
+                paths.Add(path);
             }
 
-            int numRows = max.Y - min.Y + 1;
-            int numCols = max.X - min.X + 1;
+            this.numRows = max.Y - min.Y + 1;
+            this.numCols = max.X - min.X + 1;
+            this.maxX = max.X;
 
-            this.materials = Enumerable.Range(0, numRows).Select(i => Enumerable.Range(0, numCols).Select(i => Material.Empty).ToArray()).ToArray();
+            this.materials = Enumerable.Range(0, this.numRows).Select(i => Enumerable.Range(0, this.numCols).Select(i => Material.Empty).ToArray()).ToArray();
 
-            foreach (List<Coordinate> path in rockPaths)
+            this.SetRockPositions(paths);
+        }
+
+        private Material this[int row, int column]
+        {
+            get
+            {
+                return this.materials[row][this.MapColumn(column)];
+            }
+
+            set
+            {
+                this.materials[row][this.MapColumn(column)] = value;
+            }
+        }
+
+        private Material this[Coordinate c]
+        {
+            get
+            {
+                return this[c.Y, c.X];
+            }
+
+            set
+            {
+                this[c.Y, c.X] = value;
+            }
+        }
+
+        /// <summary>
+        /// Places sand at the given coordinate.
+        /// </summary>
+        /// <param name="c">The coordinate.</param>
+        /// <returns><c>true</c> if the sand finds a resting place, <c>false</c> otherwise.</returns>
+        public bool PlaceSand(Coordinate c)
+        {
+            while (true)
+            {
+                (bool canFallFurther, bool inBounds, Coordinate nextCoordinate) = this.CanFallFurther(c);
+
+                if (!canFallFurther)
+                {
+                    if (!inBounds)
+                    {
+                        // Sand fell out of bounds into the abyss.
+                        return false;
+                    }
+
+                    // Sand came to a resting point.
+                    this[c] = Material.Sand;
+                    return true;
+                }
+
+                c = nextCoordinate;
+            }
+        }
+
+        /// <summary>
+        /// Generates a string representation of the rock structure.
+        /// </summary>
+        /// <returns>A string representation of the rock structure.</returns>
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            for (int row = 0; row < this.numRows; row++)
+            {
+                sb.AppendLine(string.Join(string.Empty, this.materials[row].Select(m => MaterialStrings[m])));
+            }
+
+            return sb.ToString();
+        }
+
+        private void SetRockPositions(List<List<Coordinate>> paths)
+        {
+            foreach (List<Coordinate> path in paths)
             {
                 for (int i = 0; i < path.Count - 1; i++)
                 {
@@ -62,28 +148,78 @@ namespace AdventOfCode2022.Models
 
                     if (a.X == b.X)
                     {
-                        // Vertical
-                        for (int row = a.Y; row <= b.Y; row++)
+                        // Vertical line.
+                        int minRow = Math.Min(a.Y, b.Y);
+                        int maxRow = Math.Max(a.Y, b.Y);
+                        for (int row = minRow; row <= maxRow; row++)
                         {
-                            this.materials[row][numCols - 1 - (max.X - a.X)] = Material.Rock;
+                            this[row, a.X] = Material.Rock;
                         }
+
+                        continue;
                     }
-                    else if (a.Y == b.Y)
+
+                    if (a.Y == b.Y)
                     {
-                        // Horizontal
+                        // Horizontal line.
                         int minCol = Math.Min(a.X, b.X);
                         int maxCol = Math.Max(a.X, b.X);
                         for (int col = minCol; col <= maxCol; col++)
                         {
-                            this.materials[a.Y][numCols - 1 - (max.X - col)] = Material.Rock;
+                            this[a.Y, col] = Material.Rock;
                         }
+
+                        continue;
                     }
-                    else
-                    {
-                        throw new InvalidDataException();
-                    }
+
+                    throw new InvalidDataException();
                 }
             }
+        }
+
+        private (bool CanFallFurther, bool InBounds, Coordinate Next) CanFallFurther(Coordinate coordinate)
+        {
+            Coordinate down = coordinate + new Coordinate(0, 1);
+            Coordinate downLeft = coordinate + new Coordinate(-1, 1);
+            Coordinate downRight = coordinate + new Coordinate(1, 1);
+
+            foreach (Coordinate next in new[] { down, downLeft, downRight })
+            {
+                if (!this.IsWithinBounds(next))
+                {
+                    return (CanFallFurther: false, InBounds: false, Next: next);
+                }
+
+                if (this[next] == Material.Empty)
+                {
+                    return (CanFallFurther: true, InBounds: true, Next: next);
+                }
+            }
+
+            // Cannot fall further.
+            return (CanFallFurther: false, InBounds: true, Next: coordinate);
+        }
+
+        private bool IsWithinBounds(Coordinate c)
+        {
+            int row = c.Y;
+            if (row < 0 || row >= this.numRows)
+            {
+                return false;
+            }
+
+            int column = this.MapColumn(c.X);
+            if (column < 0 || column >= this.numCols)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private int MapColumn(int column)
+        {
+            return this.numCols - 1 - (this.maxX - column);
         }
     }
 }

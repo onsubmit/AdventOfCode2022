@@ -21,7 +21,15 @@ namespace AdventOfCode2022.Days
             string[] lines = File.ReadAllLines("input\\Day14.txt");
             RockStructure structure = new(lines);
 
-            return 0.ToString();
+            Coordinate source = new(500, 0);
+
+            int sandUnits = 0;
+            while (structure.PlaceSand(source))
+            {
+                sandUnits++;
+            }
+
+            return sandUnits.ToString();
         }
     }
 }
