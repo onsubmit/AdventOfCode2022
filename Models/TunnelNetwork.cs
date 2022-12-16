@@ -12,10 +12,10 @@ namespace AdventOfCode2022.Models
     /// </summary>
     internal class TunnelNetwork
     {
-        private const int Row = 2000000;
         private static readonly Regex ParseLineRegex = new(@"^Sensor at x=(?<SENSORX>-?\d+), y=(?<SENSORY>-?\d+): closest beacon is at x=(?<BEACONX>-?\d+), y=(?<BEACONY>-?\d+)$");
 
         private readonly Dictionary<Coordinate, Coordinate> sensorBeaconMap = new();
+        private readonly Dictionary<Coordinate, int> sensorBeaconDistances = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TunnelNetwork"/> class.
@@ -39,32 +39,82 @@ namespace AdventOfCode2022.Models
                 Coordinate beacon = new(beaconX, beaconY);
 
                 this.sensorBeaconMap[sensor] = beacon;
+                this.sensorBeaconDistances[sensor] = sensor.GetManhattanDistanceTo(beacon);
             }
         }
 
         /// <summary>
-        /// Gets the number of coordinates that cannot be a beacon for the specific row.
+        /// Gets the distinct distress beacon.
         /// </summary>
-        /// <returns>The number of coordinates that cannot be a beacon for the specific row.</returns>
-        public int GetNumCoordinatesThatCannotBeABeacon()
+        /// <returns>The distress beacon.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if if the distress beacon cannot be identified.</exception>
+        public Coordinate GetDistressBeacon()
         {
-            int knownRangeMin = int.MaxValue;
-            int knownRangeMax = int.MinValue;
+            Coordinate min = new(0, 0);
+            Coordinate max = new(4000000, 4000000);
+
             foreach (Coordinate sensor in this.sensorBeaconMap.Keys)
             {
                 Coordinate beacon = this.sensorBeaconMap[sensor];
-                int distance = sensor.GetManhattanDistanceTo(beacon);
-                int verticalDistanceToRow = Math.Abs(Row - sensor.Y);
-                int remainingDistance = distance - verticalDistanceToRow;
+                int distance = this.sensorBeaconDistances[sensor];
+                IEnumerable<Coordinate> border = GetBorder(sensor, distance, min, max);
+                foreach (Coordinate b in border)
+                {
+                    if (b == beacon)
+                    {
+                        continue;
+                    }
 
-                int start = sensor.X - remainingDistance;
-                int end = sensor.X + remainingDistance;
+                    bool foundCandidate = true;
+                    foreach (Coordinate otherSensor in this.sensorBeaconMap.Keys)
+                    {
+                        if (otherSensor == sensor)
+                        {
+                            continue;
+                        }
 
-                knownRangeMin = Math.Min(knownRangeMin, start);
-                knownRangeMax = Math.Max(knownRangeMax, end);
+                        if (b.GetManhattanDistanceTo(otherSensor) <= this.sensorBeaconDistances[otherSensor])
+                        {
+                            // Potential coordinate is already covered by another sensor.
+                            foundCandidate = false;
+                            break;
+                        }
+                    }
+
+                    if (foundCandidate)
+                    {
+                        return b;
+                    }
+                }
             }
 
-            return knownRangeMax - knownRangeMin;
+            throw new InvalidOperationException();
+        }
+
+        private static IEnumerable<Coordinate> GetBorder(Coordinate c, int radius, Coordinate min, Coordinate max)
+        {
+            int r = radius + 1;
+
+            for (int i = 0; i <= r; i++)
+            {
+                HashSet<Coordinate> coordinates = new()
+                {
+                    new(c.X + i, c.Y + r - i),
+                    new(c.X + i, c.Y - r + i),
+                    new(c.X - i, c.Y + r - i),
+                    new(c.X - i, c.Y - r + i),
+                };
+
+                foreach (Coordinate b in coordinates)
+                {
+                    if (!b.IsInRange(min, max))
+                    {
+                        continue;
+                    }
+
+                    yield return b;
+                }
+            }
         }
     }
 }

@@ -21,7 +21,9 @@ namespace AdventOfCode2022.Days
             string[] lines = File.ReadAllLines("input\\Day15.txt");
             TunnelNetwork network = new(lines);
 
-            return network.GetNumCoordinatesThatCannotBeABeacon().ToString();
+            Coordinate distressBeacon = network.GetDistressBeacon();
+            long tuningFrequence = (distressBeacon.X * 4000000L) + distressBeacon.Y;
+            return tuningFrequence.ToString();
         }
     }
 }
